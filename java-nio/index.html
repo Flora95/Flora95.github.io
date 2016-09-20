@@ -1,0 +1,974 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="IO,channel," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="F" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前段时间投了掌赢公司的服务端开发实习，其在线笔试题要求实现一个简单的网络聊天室的服务端，并要求使用NIO。于是笔者便借此机会了解了一下Java NIO的实现，以及它与传统Java IO的不同之处。本文主要包含NIO的基本知识，掌赢在线笔试题的要求及具体实现见博文【掌赢后台在线笔试】 网络聊天室。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【Java】如何使用Java NIO">
+<meta property="og:url" content="http://flora95.github.io/java-nio/index.html">
+<meta property="og:site_name" content="F">
+<meta property="og:description" content="前段时间投了掌赢公司的服务端开发实习，其在线笔试题要求实现一个简单的网络聊天室的服务端，并要求使用NIO。于是笔者便借此机会了解了一下Java NIO的实现，以及它与传统Java IO的不同之处。本文主要包含NIO的基本知识，掌赢在线笔试题的要求及具体实现见博文【掌赢后台在线笔试】 网络聊天室。">
+<meta property="og:updated_time" content="2016-09-19T13:07:01.906Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【Java】如何使用Java NIO">
+<meta name="twitter:description" content="前段时间投了掌赢公司的服务端开发实习，其在线笔试题要求实现一个简单的网络聊天室的服务端，并要求使用NIO。于是笔者便借此机会了解了一下Java NIO的实现，以及它与传统Java IO的不同之处。本文主要包含NIO的基本知识，掌赢在线笔试题的要求及具体实现见博文【掌赢后台在线笔试】 网络聊天室。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://flora95.github.io/java-nio/"/>
+
+  <title> 【Java】如何使用Java NIO | F </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?60566c6224c48288a7e09f75040bc0d3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">F</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">程序猿随笔 O(∩_∩)O</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                【Java】如何使用Java NIO
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-18T09:07:42+08:00" content="2016-09-18">
+              2016-09-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/IO/" itemprop="url" rel="index">
+                    <span itemprop="name">IO</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/java-nio/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="java-nio/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/java-nio/" class="leancloud_visitors" data-flag-title="【Java】如何使用Java NIO">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前段时间投了掌赢公司的服务端开发实习，其在线笔试题要求实现一个简单的网络聊天室的服务端，并要求使用NIO。于是笔者便借此机会了解了一下Java NIO的实现，以及它与传统Java IO的不同之处。本文主要包含NIO的基本知识，掌赢在线笔试题的要求及具体实现见博文<a href="http://flora95.github.io/Chat-Room-NIO/" target="_blank">【掌赢后台在线笔试】 网络聊天室</a>。</p>
+<a id="more"></a>
+<h2 id="I/O_u4E0ENIO_u7684_u533A_u522B"><a href="#I/O_u4E0ENIO_u7684_u533A_u522B" class="headerlink" title="<strong>I/O与NIO的区别</strong>"></a><strong>I/O与NIO的区别</strong></h2><p>在JDK1.4之前，Java中的I/O实现是<strong>基于流和装饰器模式</strong>的。在<code>java.io.*</code>包的架构中有两类基础类，一类是<em>面向字节的InputStream和OutputStream</em>，一类是<em>兼容Unicode与面向字符的Reader和Writer</em>。而在这两类基础类的继承结构中又分别有与其相对应的FilterInputStream、FilterOutputStream、FilterReader和FilterWriter，这些不同的filter类就是<code>java.io.*</code>包中不同继承树上各装饰器的基类。因此，为了符合应用程序的需要，我们在使用传统I/O时总是要嵌套的创建多个不同的流对象，如<br><code>BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(&quot;filename&quot;)));</code></p>
+<p>在JDK1.4中，引入了<strong>面向通道和缓冲</strong>的NIO，由于此种机制与操作系统底层处理I/O的方式非常类似，所以NIO相较于之前的流I/O来说性能上有很大的提升。同时，NIO中的通道和缓冲区的创建方式比流I/O更方便快捷。值得注意的是，<code>java.io.*</code>包已使用NIO进行重新实现以实现更快的处理速度和更好的集成。</p>
+<h2 id="NIO_u7684_u6838_u5FC3_uFF1A_u901A_u9053_u4E0E_u7F13_u51B2_u533A"><a href="#NIO_u7684_u6838_u5FC3_uFF1A_u901A_u9053_u4E0E_u7F13_u51B2_u533A" class="headerlink" title="<strong>NIO的核心：通道与缓冲区</strong>"></a><strong>NIO的核心：通道与缓冲区</strong></h2><h3 id="u901A_u9053"><a href="#u901A_u9053" class="headerlink" title="<strong>通道</strong>"></a><strong>通道</strong></h3><p>通道即Channel，是一个包含数据的矿藏，我们可以通过它来读取和写入数据，与之前的I/O比较的话，通道就像是流。但，我们并不会像与流相互一样直接与通道进行交互，即，我们并不会直接从通道中读取数据或向通道中写入数据，而是要通过<strong>缓冲区</strong>。通道与流的另外一个不同点是，流是单向的（因此既需要InputStream，又需要OutputStream），而通道是<strong>双向</strong>的，因此通道比流更能反映底层操作系统的真实情况。</p>
+<h3 id="u7F13_u51B2_u533A"><a href="#u7F13_u51B2_u533A" class="headerlink" title="<strong>缓冲区</strong>"></a><strong>缓冲区</strong></h3><p>正如上一段中所提到的，我们与通道的交互需要通过缓冲区来进行。在执行读操作时，需先将数据从通道读入缓冲区中，再从缓冲区中获取数据；在执行写操作时，需先把数据存入缓冲区，再将数据从缓冲区写入通道。</p>
+<p>缓冲区实质上是一个数组，它提供了对数据的结构化访问。最常用的缓冲区类型是<strong>ByteBuffer</strong>，它提供对原始字节形式和基本数据类型的支持，可以通过<code>get/set</code>方法来对其底层的数组进行操作。其它的缓冲区类型包括CharBuffer、ShortBuffer、IntBuffer、LongBuffer、FloatBuffer和DoubleBuffer，这些缓冲区类所包含的操作完全一样，唯一不同的是它所支持的基本数据类型。但值得注意的是，ByteBuffer可以通过调用类似<code>asCharBuffer()</code>的方法来转换为其他类型的缓冲区，同时它本身也可以通过调用类似<code>putInt/getInt</code>等方法来实现对基本数据类型的支持。</p>
+<h3 id="u4F7F_u7528NIO_u8FDB_u884C_u8BFB_u5199_u64CD_u4F5C"><a href="#u4F7F_u7528NIO_u8FDB_u884C_u8BFB_u5199_u64CD_u4F5C" class="headerlink" title="<strong>使用NIO进行读写操作</strong>"></a><strong>使用NIO进行读写操作</strong></h3><p>如上所述，在使用NIO进行读写操作时，需要首先创建通道和缓冲区对象。修改过后的旧I/O类库中有三个类可以用来产生通道，分别是<strong>FileInputStream、FileOutputStream和RandomAccessFile</strong>。注意面向字符的Reader和Writer<strong>并不能</strong>用于产生通道。</p>
+<p>下面是一个使用NIO来执行文件复制操作的例子，相关说明见代码注释。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">FileInputStream fin = <span class="keyword">new</span> FileInputStream(<span class="string">"srcFile"</span>);</span><br><span class="line">FileOutputStream fout = <span class="keyword">new</span> FileOutputStream(<span class="string">"dstFile"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取通道对象</span></span><br><span class="line">FileChannel fcin = fin.getChannel();</span><br><span class="line">FileChannel fcout = fout.getChannel();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建缓冲区</span></span><br><span class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">1024</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">    <span class="comment">// 清空缓冲区，以便进行下一次读操作</span></span><br><span class="line">    buffer.clear();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 读取数据</span></span><br><span class="line">    <span class="keyword">int</span> r = fcin.read(buffer);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 文件末尾，退出循环</span></span><br><span class="line">    <span class="keyword">if</span> (r == -<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 重设缓冲区，以便执行写操作</span></span><br><span class="line">    buffer.flip();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 写入数据</span></span><br><span class="line">    fcout.write(buffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="u7F13_u51B2_u533A_u7684_u5185_u90E8_u7EC6_u8282"><a href="#u7F13_u51B2_u533A_u7684_u5185_u90E8_u7EC6_u8282" class="headerlink" title="<strong>缓冲区的内部细节</strong>"></a><strong>缓冲区的内部细节</strong></h3><p>从上面文件复制的代码示例中可以发现，在使用ByteBuffer进行读写操作时，无需指明缓冲区的大小和数组索引值，也无需指定所需读写的字节数，但在调用read或write方法之前，需要调用一些其他的方法对缓冲区进行设置，如clear和flip。这些都是由NIO缓冲区的内部实现机制导致的，它通过维护一些状态变量和访问方法封装了相关的统计操作，从而简化了对read和write方法的调用。</p>
+<p><strong>状态变量</strong></p>
+<p>缓冲区内部维护了四个状态变量，用于指定缓冲区在任意时刻的状态。</p>
+<ul>
+<li>position：指向缓冲区底层数组中下一个可供读写操作的位置索引。即，在读操作中，position指向下一个可读字节的位置；在写操作中，position指向下一个字节应写入的位置。</li>
+<li>limit：指定缓冲区底层数组所包含的数据数量。position总是不大于limit。</li>
+<li>capacity：缓冲区可包含的最大数据数量。limit总是不大于capacity。</li>
+<li>mark：标记值，通过调用<code>mark()</code>方法设置，在调用<code>reset()</code>方法时会将position值置为mark的值。</li>
+</ul>
+<p>在了解了这四个状态变量之后，我们再来看一下clear和flip方法的语义：</p>
+<ul>
+<li><code>clear()</code>：清空缓冲区，为接下来的读操作做准备，<code>limit = capacity; position = 0;</code></li>
+<li><code>flip()</code>：重设缓冲区，为接下来的写操作做准备，<code>limit = position; position = 0;</code></li>
+</ul>
+<p>因此，在文件复制的代码示例中，对clear和flip方法的调用是必不可少的，否则读写操作将无法正常进行。</p>
+<p><strong>访问方法</strong></p>
+<p>ByteBuffer类提供了若干种get()和put()方法来直接访问缓冲区中的数据。这些方法可以分为相对和绝对两种。</p>
+<ul>
+<li>相对方法：如<code>get(byte dst[])</code>，缓冲区在实现此类方法时需服从position和limit的值，且方法操作完成后会更新position值</li>
+<li>绝对方法：如<code>put(int index, byte b)</code>，此类方法通过方法参数直接指明了要操作的数组下标索引值，因此与position和limit值无关，当然也就不会在方法中更新这些状态变量。</li>
+</ul>
+<h3 id="u7F13_u51B2_u533A_u7684_u5E94_u7528"><a href="#u7F13_u51B2_u533A_u7684_u5E94_u7528" class="headerlink" title="<strong>缓冲区的应用</strong>"></a><strong>缓冲区的应用</strong></h3><h4 id="u5206_u7247"><a href="#u5206_u7247" class="headerlink" title="<strong>分片</strong>"></a><strong>分片</strong></h4><p><code>slice()</code>方法可以提取现有缓冲区中的一部分，用来创建出一个新的缓冲区。代码示例如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ByteBuffer buffer = ByteBuffer.allocate(<span class="number">10</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过设置缓冲区的position和limit值来指定分片的范围</span></span><br><span class="line">buffer.position(<span class="number">3</span>);</span><br><span class="line">buffer.limit(<span class="number">7</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获得缓冲区分片</span></span><br><span class="line">ByteBuffer slice = buffer.slice();</span><br></pre></td></tr></table></figure>
+<p>值得注意的是，原缓冲区和分片缓冲区是<strong>共享</strong>底层数组数据的。也就是说，若在上述代码示例中更改slice缓冲区中的值，buffer缓冲区中相应位置的值也会随之改变。</p>
+<p>分片技术对于促进抽象很有帮助。如果只允许某个函数处理缓冲区中的部分数据，则可以给该函数传递一个仅包含所需数据段的分片缓冲区。此种实现比给函数传递额外的参数来指定要处理的缓冲区数据范围更加简便，同时安全性也更高。</p>
+<h4 id="u53EA_u8BFB_u7F13_u51B2_u533A"><a href="#u53EA_u8BFB_u7F13_u51B2_u533A" class="headerlink" title="<strong>只读缓冲区</strong>"></a><strong>只读缓冲区</strong></h4><p><code>asReadOnlyBuffer()</code>方法允许将一个缓冲区转换成只读缓冲区，从而实现对数据的保护。只读缓冲区与原缓冲区的数据也是<strong>共享</strong>的。</p>
+<h4 id="u76F4_u63A5_u7F13_u51B2_u533A"><a href="#u76F4_u63A5_u7F13_u51B2_u533A" class="headerlink" title="<strong>直接缓冲区</strong>"></a><strong>直接缓冲区</strong></h4><p>通常我们创建缓冲区对象时使用的是<code>ByteBuffer.allocate(size)</code>方法，实际上，还可以使用<code>ByteBuffer.allocateDirect(size)</code>方法来创建直接缓冲区，以进一步的提高I/O速度。在实现上，JVM将尽可能的直接对直接缓冲区执行本机I/O操作，即，它会在每一次调用底层操作系统的本机I/O操作之前或之后，尽量避免直接缓冲区与某一个中间缓冲区之间的数据转移。</p>
+<h4 id="u5185_u5B58_u6620_u5C04_u6587_u4EF6"><a href="#u5185_u5B58_u6620_u5C04_u6587_u4EF6" class="headerlink" title="<strong>内存映射文件</strong>"></a><strong>内存映射文件</strong></h4><p>FileChannel的map()方法允许创建一个内存映射文件，用来简化对大尺寸文件的处理。map()方法的参数分别为映射模式、起始索引、映射长度。</p>
+<p><code>MappedByteBuffer mbb = channel.map(FileChannel.MapMode.READ_WRITE, 0, 1024)</code></p>
+<p>MappedByteBuffer是ByteBuffer的子类，它具有ByteBuffer的所有方法。</p>
+<h2 id="NIO_u5B9E_u73B0_u6587_u4EF6_u9501_u5B9A"><a href="#NIO_u5B9E_u73B0_u6587_u4EF6_u9501_u5B9A" class="headerlink" title="NIO实现文件锁定"></a>NIO实现文件锁定</h2><p>JDK1.4还引入了文件加锁机制，它允许我们同步访问作为共享资源的文件。Java的文件加锁是直接映射到底层操作系统的加锁工具上的，因此，Java的文件锁对其他的操作系统进程也是可见的。其使用方法如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lock方法是阻塞的，也可以调用非阻塞的tryLock()方法，两方法的参数列表一致</span></span><br><span class="line">FileLock lock = fileChannel.lock(start, end, isShared);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 无参数的方法可以获取整个文件上的锁</span></span><br><span class="line"><span class="comment">// FileLock lock = fileChannel.lock();</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 执行相关文件读写操作</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 释放锁</span></span><br><span class="line">lock.release();</span><br></pre></td></tr></table></figure>
+<p>注意，只有FileChannel有加锁的需求。SocketChannel、DatagramChannel和ServerSocketChannel并不需要加锁，因为它们是从单进程实体继承而来的。</p>
+<p>由于不同操作系统实现文件锁的方式不同，如果操作系统不支持共享锁并为每一个请求都创建一个锁，那么它就会使用独占锁。锁的共享或独占类型可以通过调用<code>FileLock.isShared()</code>来查询。</p>
+<h2 id="u7F51_u7EDC_u901A_u4FE1_u4E0E_u5F02_u6B65I/O"><a href="#u7F51_u7EDC_u901A_u4FE1_u4E0E_u5F02_u6B65I/O" class="headerlink" title="<strong>网络通信与异步I/O</strong>"></a><strong>网络通信与异步I/O</strong></h2><h3 id="u5F02_u6B65I/O"><a href="#u5F02_u6B65I/O" class="headerlink" title="<strong>异步I/O</strong>"></a><strong>异步I/O</strong></h3><p>异步I/O是一种无阻塞的读写数据的方式。类似观察者模式，通过注册对特定I/O事件的兴趣，如可读数据的到达或新的套接字连接，就可以在相应事件发生时收到系统的通知。通过异步I/O，我们可以监听任何数量的通道上的事件，而无需进行轮询，也不需要额外的线程。</p>
+<p>异步I/O的一个典型应用是网络通信。</p>
+<h3 id="u4F7F_u7528NIO_u5B9E_u73B0_u7F51_u7EDC_u901A_u4FE1"><a href="#u4F7F_u7528NIO_u5B9E_u73B0_u7F51_u7EDC_u901A_u4FE1" class="headerlink" title="<strong>使用NIO实现网络通信</strong>"></a><strong>使用NIO实现网络通信</strong></h3><p>以下代码示例展示了如何使用NIO来进行网络通信。</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ByteBuffer </span><span class="keyword">buffer </span>= <span class="keyword">ByteBuffer.allocate(1024);</span><br><span class="line"></span></span><br><span class="line">// 创建<span class="keyword">selector，它是注册各种I/O事件兴趣的地方，当相应事件发生时，由该selector对象来通知</span><br><span class="line"></span><span class="keyword">Selector </span><span class="keyword">selector </span>= <span class="keyword">Selector.open();</span><br><span class="line"></span></span><br><span class="line">// 创建ServerSocketChannel接收连接，一个ssc对应一个监听端口</span><br><span class="line"><span class="label">ServerSocketChannel</span> ssc = ServerSocketChannel.open()<span class="comment">;</span></span><br><span class="line">// 必须，使得异步I/O能够工作</span><br><span class="line"><span class="label">ssc.configureBlocking</span>(false)<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">// 绑定端口</span><br><span class="line"><span class="label">ServerSocket</span> ss = ssc.socket()<span class="comment">;</span></span><br><span class="line"><span class="label">ss.bing</span>(new InetSocketAddress(port))<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">// 注册，OP_ACCEPT为新连接建立事件，是适用于ServerSocketChannel的唯一事件类型</span><br><span class="line">// <span class="keyword">selector将通过提供对应于注册事件的key来通知事件的发生，key还可用于取消注册</span><br><span class="line"></span><span class="keyword">SelectionKey </span>key = ssc.register(<span class="keyword">selector, </span><span class="keyword">SelectionKey.OP_ACCEPT);</span><br><span class="line"></span></span><br><span class="line"><span class="label">while</span> (true) &#123;</span><br><span class="line">    // 阻塞直至有已注册事件发生</span><br><span class="line">    int num = <span class="keyword">selector.select();</span><br><span class="line"></span></span><br><span class="line">    // 获取已发生事件的<span class="keyword">SelectionKey对象的集合</span><br><span class="line"></span>    Set <span class="keyword">selectedKeys </span>= <span class="keyword">selector.selectedKeys();</span><br><span class="line"></span>    <span class="keyword">Iterator </span><span class="keyword">it </span>= <span class="keyword">selectedKeys.iterator();</span><br><span class="line"></span></span><br><span class="line">    // 依次处理I/O事件</span><br><span class="line">    <span class="preprocessor">while</span> (<span class="keyword">it.hasNext()) </span>&#123;</span><br><span class="line">        <span class="keyword">SelectionKey </span>key = (<span class="keyword">SelectionKey) </span><span class="keyword">it.next();</span><br><span class="line"></span>        </span><br><span class="line">        // 新连接事件</span><br><span class="line">        <span class="preprocessor">if</span> ((key.readyOps() &amp; <span class="keyword">SelectionKey.OP_ACCEPT) </span>== <span class="keyword">SelectionKey.OP_ACCEPT) </span>&#123;</span><br><span class="line">            ServerSocketChannel ssc = (ServerSocketChannel) key.channel()<span class="comment">;</span></span><br><span class="line">            SocketChannel sc = ssc.accept()<span class="comment">;// 此处无需担心阻塞</span></span><br><span class="line">            sc.configureBlocking(false)<span class="comment">;</span></span><br><span class="line">            </span><br><span class="line">            // 将新连接注册到<span class="keyword">selector中，用于读取数据</span><br><span class="line"></span>            <span class="keyword">SelectionKey </span>newKey = sc.register(<span class="keyword">selector, </span><span class="keyword">SelectionKey.OP_READ);</span><br><span class="line"></span>            </span><br><span class="line">            // 删除处理过的<span class="keyword">SelectionKey，以防止在下次循环中试图再次处理它</span><br><span class="line"></span>            <span class="keyword">it.remove();</span><br><span class="line"></span>        &#125; <span class="preprocessor">else</span> <span class="preprocessor">if</span> ((key.readyOps() &amp; <span class="keyword">SelectionKey.OP_READ) </span>== <span class="keyword">SelectionKey.OP_READ) </span>&#123;</span><br><span class="line">            SocketChannel sc = (SocketChannel) key.channel()<span class="comment">;</span></span><br><span class="line">            </span><br><span class="line">            // 读取数据并处理</span><br><span class="line">            <span class="keyword">buffer.clear();</span><br><span class="line"></span>            int r = sc.read(<span class="keyword">buffer);</span><br><span class="line"></span>            // ...</span><br><span class="line">        </span><br><span class="line">            <span class="keyword">it.remove();</span><br><span class="line"></span>        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/IO/" rel="tag">#IO</a>
+          
+            <a href="/tags/channel/" rel="tag">#channel</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Class-File-Structure/" rel="next" title="【Java】类文件结构">
+                <i class="fa fa-chevron-left"></i> 【Java】类文件结构
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Chat-Room-NIO/" rel="prev" title="【掌赢后台在线笔试】 网络聊天室">
+                【掌赢后台在线笔试】 网络聊天室 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="java-nio/"
+           data-title="【Java】如何使用Java NIO" data-url="http://flora95.github.io/java-nio/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpeg"
+               alt="Flora95" />
+          <p class="site-author-name" itemprop="name">Flora95</p>
+          <p class="site-description motion-element" itemprop="description">Java | Data Structure</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Flora95" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#I/O_u4E0ENIO_u7684_u533A_u522B"><span class="nav-number">1.</span> <span class="nav-text">I/O与NIO的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NIO_u7684_u6838_u5FC3_uFF1A_u901A_u9053_u4E0E_u7F13_u51B2_u533A"><span class="nav-number">2.</span> <span class="nav-text">NIO的核心：通道与缓冲区</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u901A_u9053"><span class="nav-number">2.1.</span> <span class="nav-text">通道</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u7F13_u51B2_u533A"><span class="nav-number">2.2.</span> <span class="nav-text">缓冲区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u4F7F_u7528NIO_u8FDB_u884C_u8BFB_u5199_u64CD_u4F5C"><span class="nav-number">2.3.</span> <span class="nav-text">使用NIO进行读写操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u7F13_u51B2_u533A_u7684_u5185_u90E8_u7EC6_u8282"><span class="nav-number">2.4.</span> <span class="nav-text">缓冲区的内部细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u7F13_u51B2_u533A_u7684_u5E94_u7528"><span class="nav-number">2.5.</span> <span class="nav-text">缓冲区的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#u5206_u7247"><span class="nav-number">2.5.1.</span> <span class="nav-text">分片</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u53EA_u8BFB_u7F13_u51B2_u533A"><span class="nav-number">2.5.2.</span> <span class="nav-text">只读缓冲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u76F4_u63A5_u7F13_u51B2_u533A"><span class="nav-number">2.5.3.</span> <span class="nav-text">直接缓冲区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#u5185_u5B58_u6620_u5C04_u6587_u4EF6"><span class="nav-number">2.5.4.</span> <span class="nav-text">内存映射文件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NIO_u5B9E_u73B0_u6587_u4EF6_u9501_u5B9A"><span class="nav-number">3.</span> <span class="nav-text">NIO实现文件锁定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u7F51_u7EDC_u901A_u4FE1_u4E0E_u5F02_u6B65I/O"><span class="nav-number">4.</span> <span class="nav-text">网络通信与异步I/O</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u5F02_u6B65I/O"><span class="nav-number">4.1.</span> <span class="nav-text">异步I/O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u4F7F_u7528NIO_u5B9E_u73B0_u7F51_u7EDC_u901A_u4FE1"><span class="nav-number">4.2.</span> <span class="nav-text">使用NIO实现网络通信</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Flora95</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"flora95"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("Ujqbunh0rrzjcLze8uo9b6lj-gzGzoHsz", "1MvecqfGMDV0FfdwfmJk07H2");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

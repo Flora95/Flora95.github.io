@@ -1,0 +1,965 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="NIO,笔试," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="F" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前段时间做了掌赢后台的一个在线笔试题——网络聊天室，题目比较开放，给24个小时进行答题，主要是看笔试者的代码风格习惯。其题目要求和实现方案如下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【掌赢后台在线笔试】 网络聊天室">
+<meta property="og:url" content="http://flora95.github.io/Chat-Room-NIO/index.html">
+<meta property="og:site_name" content="F">
+<meta property="og:description" content="前段时间做了掌赢后台的一个在线笔试题——网络聊天室，题目比较开放，给24个小时进行答题，主要是看笔试者的代码风格习惯。其题目要求和实现方案如下。">
+<meta property="og:updated_time" content="2016-09-19T13:07:42.279Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="【掌赢后台在线笔试】 网络聊天室">
+<meta name="twitter:description" content="前段时间做了掌赢后台的一个在线笔试题——网络聊天室，题目比较开放，给24个小时进行答题，主要是看笔试者的代码风格习惯。其题目要求和实现方案如下。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://flora95.github.io/Chat-Room-NIO/"/>
+
+  <title> 【掌赢后台在线笔试】 网络聊天室 | F </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?60566c6224c48288a7e09f75040bc0d3";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">F</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">程序猿随笔 O(∩_∩)O</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                【掌赢后台在线笔试】 网络聊天室
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-19T18:43:49+08:00" content="2016-09-19">
+              2016-09-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/面经/" itemprop="url" rel="index">
+                    <span itemprop="name">面经</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/Chat-Room-NIO/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="Chat-Room-NIO/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/Chat-Room-NIO/" class="leancloud_visitors" data-flag-title="【掌赢后台在线笔试】 网络聊天室">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>前段时间做了掌赢后台的一个在线笔试题——网络聊天室，题目比较开放，给24个小时进行答题，主要是看笔试者的代码风格习惯。其题目要求和实现方案如下。</p>
+<a id="more"></a>
+<h2 id="u9898_u76EE"><a href="#u9898_u76EE" class="headerlink" title="<strong>题目</strong>"></a><strong>题目</strong></h2><p>服务端机试题目(Java/C/C++/Go) </p>
+<ol>
+<li><p>实现一个简单的网络聊天室服务端,功能要求如下:</p>
+<p> 1） 实现服务端(命令行即可,不需要图像UI,使用TCP);</p>
+<p> 2） 客户端通过telnet连接至服务端;</p>
+<p> 3） 使用NIO模式;</p>
+<p> 4） 超时处理:用户超过60S无输入,自动断开连接;</p>
+<p> 5） 客户端初次连接时服务端返回提示信息,提示用户输入用户昵称;用户输入昵称后,按回车键发送至服务器,如果此昵称已经有其他人用,提示重新输入;如果昵称唯一,则登录;</p>
+<p> 6） 客户端登录后,输入任何abcd等普通字符,按回车键发送至服务器;当客户端输入‘/quit’并回车时(‘/‘表示此输入是命令),断开连接;</p>
+<p> 7） 服务器接收客户登录,保证客户昵称唯一即可;用户登录后发送已经设置好的欢迎信息和在线人数给客户端;</p>
+<p> 8） 服务器收到已登录用户的输入内容,然后在内容前面加上发送方的昵称和分号,转发至其他所有登录客户端,不回发给发送此内容的客户端;</p>
+<p> 9） 有客户端上线或者下线时,发送通知到所有在线用户,通知内容为“xx已上线”,“xx已下线”;</p>
+<p> 10） 考虑服务端如果需要支持10万以上级别客户端登录的情况;</p>
+<p> 11） 各种数据不需要存磁盘;</p>
+<p> 12） 请看完下一题再开始写代码;</p>
+</li>
+<li><p>在上一题的基础上,实现自动查询机器人服务,功能要求如下:</p>
+<p> 1） 实现天气查询服务,客户端输入:”/天气 北京”,服务端调用接口获取北京天气信息返回给客户端;第一个词为查询词(‘/‘表示此输入是命令),后一个为查询关键词,查询类的输入内容,不用发给其他用户;</p>
+<p> 2） 程序结构需要设计灵活,将来增加查询股票、火车票、飞机票等功能;比如查询火车票的查询格式为:”/火车票 北京 上海”,即可查询北京到上海的火车票情况;</p>
+<p> 3） 需要有缓存机制,比如城市天气信息,相同城市缓存2小时,减少对接口的调用次数;</p>
+<p> 4） 如果需要实现查询功能的动态增减,给出解决办法说明,不需要写出代码;</p>
+</li>
+<li><p>给出文档说明,要求如下:</p>
+<p> 1) 程序设计的思路;</p>
+<p> 2) 系统还有哪些改进点;</p>
+<p> 3) 如果系统支撑的用户数量扩大100 倍,如何处理;</p>
+</li>
+</ol>
+<p>注意：此机试答案需提交代码（上传压缩包）和文档</p>
+<h2 id="u5B9E_u73B0"><a href="#u5B9E_u73B0" class="headerlink" title="<strong>实现</strong>"></a><strong>实现</strong></h2><h3 id="u670D_u52A1_u7AEF_u5B9E_u73B0"><a href="#u670D_u52A1_u7AEF_u5B9E_u73B0" class="headerlink" title="<strong>服务端实现</strong>"></a><strong>服务端实现</strong></h3><ul>
+<li>用户信息：服务端维护两个map。一个是用户IP地址至用户名的映射，用于保证在线用户昵称的唯一性。另一个是用户IP地址至用户上次活跃时间的映射，用于辅助Timer实现超时处理。</li>
+<li>超时处理：使用Timer实现，每隔一秒检测用户列表，若用户上次活跃时间在60s之前，则强制用户下线。</li>
+<li>查询服务：采用策略模式。需要增加新的服务类型时，只需编写新类并实现<code>QueryServiceInterface</code>接口，无需修改现有代码。</li>
+<li>针对大用户量的处理方案：现有服务端代码使用一个线程处理所有的用户连接请求和消息，当用户量很大时，可能导致较高的延迟。可以改用线程池，当新的用户请求或消息到达时，从线程池中获取一个新线程进行处理，处理完毕则释放线程。</li>
+</ul>
+<p>服务端具体代码如下（若对NIO如何实现网络通信不熟悉，可以参考笔者另一篇博文<a href="http://flora95.github.io/java-nio/" target="_blank">如何使用Java NIO</a>）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ChatRoomServer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> Selector selector = <span class="keyword">null</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> PORT = <span class="number">8216</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> BUFF_SIZE = <span class="number">1024</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String MSG_USER_EXIST = <span class="string">"User name exist! Please try again!"</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String MSG_QUERY_FAIL = <span class="string">"Query failed"</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CMD_QUIT = <span class="string">"quit"</span>;</span><br><span class="line">	<span class="keyword">private</span> Charset charset = Charset.forName(<span class="string">"UTF-8"</span>);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 记录当前在线用户：用户IP地址-用户名的映射</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> Map&lt;SocketAddress, String&gt; users = <span class="keyword">new</span> HashMap&lt;SocketAddress, String&gt;();</span><br><span class="line">	<span class="comment">// 用户IP地址-用户上次活跃时间的映射</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> Map&lt;SocketAddress, Date&gt; activeTime = <span class="keyword">new</span> HashMap&lt;SocketAddress, Date&gt;();</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 超时处理计时器</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Timer TIMER = <span class="keyword">new</span> Timer();</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> TIMER_DELAY_MILLIS = <span class="number">2000</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> TIMER_PERIOD_MILLIS = <span class="number">1000</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> TIMEOUT_MILLIS = <span class="number">60000</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="comment">// 初始化计时器</span></span><br><span class="line">		TIMER.scheduleAtFixedRate(<span class="keyword">new</span> TimeoutTask(), TIMER_DELAY_MILLIS, TIMER_PERIOD_MILLIS);</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 初始化服务端channel，开始监听</span></span><br><span class="line">		selector = Selector.open();</span><br><span class="line">		</span><br><span class="line">		ServerSocketChannel ssc = ServerSocketChannel.open();</span><br><span class="line">		ssc.socket().bind(<span class="keyword">new</span> InetSocketAddress(PORT));</span><br><span class="line">		ssc.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line">		</span><br><span class="line">		ssc.register(selector, SelectionKey.OP_ACCEPT);</span><br><span class="line">		</span><br><span class="line">		System.out.println(<span class="string">"Server is listening to port "</span> + PORT + <span class="string">" now..."</span>);</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">			<span class="keyword">int</span> ready = selector.select();</span><br><span class="line">			<span class="keyword">if</span> (ready == <span class="number">0</span>) &#123;</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			Set&lt;SelectionKey&gt; selectedKeys = selector.selectedKeys();</span><br><span class="line">			Iterator&lt;SelectionKey&gt; keyIterator = selectedKeys.iterator();</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">while</span> (keyIterator.hasNext()) &#123;</span><br><span class="line">				SelectionKey key = (SelectionKey) keyIterator.next();</span><br><span class="line">				processKey(ssc, key);</span><br><span class="line">				keyIterator.remove();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processKey</span><span class="params">(ServerSocketChannel ssc, SelectionKey key)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="comment">// 新用户连接</span></span><br><span class="line">		<span class="keyword">if</span> (key.isAcceptable()) &#123;</span><br><span class="line">			SocketChannel sc = ssc.accept();</span><br><span class="line">			sc.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line">			</span><br><span class="line">			<span class="comment">// 将新连接注册到selector中，用于读取该用户的后续消息</span></span><br><span class="line">			sc.register(selector, SelectionKey.OP_READ);</span><br><span class="line">			</span><br><span class="line">			<span class="comment">// 重置当前的channel，以便接收其他用户的登录请求</span></span><br><span class="line">			key.interestOps(SelectionKey.OP_ACCEPT);</span><br><span class="line">			</span><br><span class="line">			System.out.println(<span class="string">"Server accepted connection from client: "</span> + sc.getRemoteAddress());</span><br><span class="line">			</span><br><span class="line">			sc.write(charset.encode(<span class="string">"Please enter your name: "</span>));</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 已登录用户消息</span></span><br><span class="line">		<span class="keyword">else</span> <span class="keyword">if</span> (key.isReadable()) &#123;</span><br><span class="line">			SocketChannel sc = (SocketChannel) key.channel();</span><br><span class="line">			</span><br><span class="line">			ByteBuffer buffer = ByteBuffer.allocate(BUFF_SIZE);</span><br><span class="line">			StringBuffer msg = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">			</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="keyword">while</span> (sc.read(buffer) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">					buffer.flip();</span><br><span class="line">					msg.append(charset.decode(buffer));</span><br><span class="line">					buffer.clear();</span><br><span class="line">				&#125;</span><br><span class="line">				</span><br><span class="line">				<span class="comment">// 重置当前的channel，以便接收该用户的后续消息</span></span><br><span class="line">				key.interestOps(SelectionKey.OP_READ);</span><br><span class="line">				</span><br><span class="line">				<span class="keyword">if</span> (msg.length() &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">					<span class="keyword">return</span>;</span><br><span class="line">				&#125;</span><br><span class="line">				</span><br><span class="line">				System.out.println(<span class="string">"Server received message from client "</span> + sc.getRemoteAddress() + <span class="string">": ["</span> + msg + <span class="string">"]"</span>);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">				key.cancel();</span><br><span class="line">				</span><br><span class="line">				<span class="keyword">if</span> (key.channel() != <span class="keyword">null</span>) &#123;</span><br><span class="line">					key.channel().close();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			processMsg(sc, msg);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processMsg</span><span class="params">(SocketChannel sc, StringBuffer msg)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (msg == <span class="keyword">null</span> || msg.length() &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		SocketAddress address = sc.getRemoteAddress();</span><br><span class="line">		activeTime.put(address, <span class="keyword">new</span> Date());</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">if</span> (msg.charAt(<span class="number">0</span>) == <span class="string">'/'</span> &amp;&amp; msg.length() &gt; <span class="number">1</span>) &#123;</span><br><span class="line">			processCmd(sc, msg.substring(<span class="number">1</span>));</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 已登录用户，广播消息</span></span><br><span class="line">		<span class="keyword">if</span> (users.containsKey(address)) &#123;</span><br><span class="line">			String userName = users.get(address);</span><br><span class="line">			</span><br><span class="line">			String broadcastMsg = userName + <span class="string">": "</span> + msg.toString();</span><br><span class="line">			broadcastMsg(address, broadcastMsg);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 新登录用户</span></span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// 昵称已存在</span></span><br><span class="line">			<span class="keyword">if</span> (users.containsValue(msg.toString())) &#123;</span><br><span class="line">				sc.write(charset.encode(MSG_USER_EXIST));</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">// 登录用户，返回欢迎信息，广播上线消息</span></span><br><span class="line">			<span class="keyword">else</span> &#123;</span><br><span class="line">				users.put(address, msg.toString());</span><br><span class="line">				</span><br><span class="line">				String welcomeMsg = <span class="string">"Welcome to the chat room, "</span> + msg + <span class="string">"! Current online user number is: "</span> + users.size();</span><br><span class="line">				sc.write(charset.encode(welcomeMsg));</span><br><span class="line">				</span><br><span class="line">				broadcastMsg(address, <span class="string">"User "</span> + msg + <span class="string">" online!"</span>);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processCmd</span><span class="params">(SocketChannel sc, String cmd)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (cmd.length() == <span class="number">0</span>) &#123;</span><br><span class="line">			<span class="keyword">return</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 退出命令</span></span><br><span class="line">		<span class="keyword">if</span> (cmd.equals(CMD_QUIT)) &#123;</span><br><span class="line">			logout(sc.getRemoteAddress());</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 查询命令</span></span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			String[] tokens = cmd.split(<span class="string">" "</span>);</span><br><span class="line">			</span><br><span class="line">			String queryType = tokens[<span class="number">0</span>];</span><br><span class="line">			String[] paras = <span class="keyword">new</span> String[tokens.length - <span class="number">1</span>];</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; tokens.length; i++) &#123;</span><br><span class="line">				paras[i - <span class="number">1</span>] = tokens[i];</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			QueryServiceInterface queryService;</span><br><span class="line">			</span><br><span class="line">			String result = MSG_QUERY_FAIL;</span><br><span class="line">			<span class="keyword">switch</span> (queryType) &#123;</span><br><span class="line">			<span class="keyword">case</span> <span class="string">"天气"</span>:</span><br><span class="line">				queryService = <span class="keyword">new</span> QueryWeatherService();</span><br><span class="line">				result = queryService.query(paras);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			sc.write(charset.encode(result));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">broadcastMsg</span><span class="params">(SocketAddress address, String msg)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="keyword">for</span> (SelectionKey key : selector.keys()) &#123;</span><br><span class="line">			<span class="keyword">if</span> (!(key.channel() <span class="keyword">instanceof</span> SocketChannel)) &#123;</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			SocketChannel targetChannel = (SocketChannel) key.channel();</span><br><span class="line">			SocketAddress targetAddress = targetChannel.getRemoteAddress();</span><br><span class="line">			</span><br><span class="line">			<span class="comment">// 不回发给已下线用户</span></span><br><span class="line">			<span class="keyword">if</span> (!users.containsKey(targetAddress)) &#123;</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			<span class="comment">// 不回发广播消息给发送此内容的客户端</span></span><br><span class="line">			<span class="keyword">if</span> (address != <span class="keyword">null</span> &amp;&amp; targetAddress.equals(address)) &#123;</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			<span class="comment">// 执行转发</span></span><br><span class="line">			targetChannel.write(charset.encode(msg));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">logout</span><span class="params">(SocketAddress address)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		String msg = <span class="string">"User "</span> + users.get(address) + <span class="string">" offline!"</span>;</span><br><span class="line">		broadcastMsg(address, msg);</span><br><span class="line">		users.remove(address);</span><br><span class="line">		</span><br><span class="line">		System.out.println(msg);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">		<span class="keyword">new</span> ChatRoomServer().init();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/**</span><br><span class="line">	 * 超时处理计时器任务类</span><br><span class="line">	 * <span class="doctag">@author</span> Flora95</span><br><span class="line">	 *</span><br><span class="line">	 */</span></span><br><span class="line">	<span class="class"><span class="keyword">class</span> <span class="title">TimeoutTask</span> <span class="keyword">extends</span> <span class="title">TimerTask</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">		<span class="annotation">@Override</span></span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">			Date now = <span class="keyword">new</span> Date();</span><br><span class="line">			</span><br><span class="line">			Iterator&lt;Entry&lt;SocketAddress, Date&gt;&gt; iterator = activeTime.entrySet().iterator();</span><br><span class="line">			<span class="keyword">while</span> (iterator.hasNext()) &#123;</span><br><span class="line">				Entry&lt;SocketAddress, Date&gt; entry = iterator.next();</span><br><span class="line">				</span><br><span class="line">				Date activeDate = entry.getValue();</span><br><span class="line">				<span class="keyword">if</span> (now.getTime() - activeDate.getTime() &gt;= TIMEOUT_MILLIS) &#123;</span><br><span class="line">					<span class="keyword">try</span> &#123;</span><br><span class="line">						logout(entry.getKey());</span><br><span class="line">					&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">						<span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</span><br><span class="line">					&#125;</span><br><span class="line">					</span><br><span class="line">					iterator.remove();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="u5BA2_u6237_u7AEF_u5B9E_u73B0"><a href="#u5BA2_u6237_u7AEF_u5B9E_u73B0" class="headerlink" title="<strong>客户端实现</strong>"></a><strong>客户端实现</strong></h3><p>客户端实现较为简单，使用<code>SocketChannel</code>向服务端发送连接请求后，创建一个线程用于接收服务端的消息，而主线程则用于从命令行读取用户输入并发送。接收服务端消息的线程实现类似于服务端消息处理的实现，以下仅贴出主线程的实现代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">	selector = Selector.open();</span><br><span class="line">		</span><br><span class="line">	<span class="comment">// 连接服务端</span></span><br><span class="line">	sc = SocketChannel.open(<span class="keyword">new</span> InetSocketAddress(HOSTNAME, PORT));</span><br><span class="line">	sc.configureBlocking(<span class="keyword">false</span>);</span><br><span class="line">	sc.register(selector, SelectionKey.OP_READ);</span><br><span class="line">		</span><br><span class="line">	<span class="comment">// 启动一个线程接受服务端返回的消息</span></span><br><span class="line">	<span class="keyword">new</span> Thread(<span class="keyword">new</span> ClientThread()).start();</span><br><span class="line">		</span><br><span class="line">	<span class="comment">// 主线程用于从console读取用户输入并发送到服务端</span></span><br><span class="line">	Scanner scanner = <span class="keyword">new</span> Scanner(System.in);</span><br><span class="line">		</span><br><span class="line">	<span class="keyword">while</span> (scanner.hasNextLine()) &#123;</span><br><span class="line">		String line = scanner.nextLine();</span><br><span class="line">			</span><br><span class="line">		<span class="keyword">if</span> (line.length() == <span class="number">0</span>) &#123;</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">			</span><br><span class="line">		sc.write(charset.encode(line));</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="u5B8C_u6574_u4EE3_u7801_u83B7_u53D6"><a href="#u5B8C_u6574_u4EE3_u7801_u83B7_u53D6" class="headerlink" title="<strong>完整代码获取</strong>"></a><strong>完整代码获取</strong></h3><p>如果想要亲自试验上述代码，欢迎前往<a href="https://github.com/Flora95/ChatRoom-NIO" target="_blank">Github</a>下载。</p>
+<h2 id="u5360_u5751"><a href="#u5360_u5751" class="headerlink" title="<strong>占坑</strong>"></a><strong>占坑</strong></h2><p>关于第二条要求<strong>客户端通过telnet连接至服务端</strong>，本人在win10系统使用cmd执行<code>telnet 127.0.0.1 8216</code>命令可以连接至服务端，但是由于连接后的通信不支持回车发送，每次敲击一个字符后该字符都会被立即发送到服务端，因此未能正常测试telnet连接。之后解决了字符发送问题后回来填坑。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/NIO/" rel="tag">#NIO</a>
+          
+            <a href="/tags/笔试/" rel="tag">#笔试</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/java-nio/" rel="next" title="【Java】如何使用Java NIO">
+                <i class="fa fa-chevron-left"></i> 【Java】如何使用Java NIO
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="Chat-Room-NIO/"
+           data-title="【掌赢后台在线笔试】 网络聊天室" data-url="http://flora95.github.io/Chat-Room-NIO/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpeg"
+               alt="Flora95" />
+          <p class="site-author-name" itemprop="name">Flora95</p>
+          <p class="site-description motion-element" itemprop="description">Java | Data Structure</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Flora95" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#u9898_u76EE"><span class="nav-number">1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u5B9E_u73B0"><span class="nav-number">2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u670D_u52A1_u7AEF_u5B9E_u73B0"><span class="nav-number">2.1.</span> <span class="nav-text">服务端实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u5BA2_u6237_u7AEF_u5B9E_u73B0"><span class="nav-number">2.2.</span> <span class="nav-text">客户端实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u5B8C_u6574_u4EE3_u7801_u83B7_u53D6"><span class="nav-number">2.3.</span> <span class="nav-text">完整代码获取</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u5360_u5751"><span class="nav-number">3.</span> <span class="nav-text">占坑</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Flora95</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"flora95"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("Ujqbunh0rrzjcLze8uo9b6lj-gzGzoHsz", "1MvecqfGMDV0FfdwfmJk07H2");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
